@@ -1,4 +1,3 @@
-
 from mininet.topo import Topo
 from time import sleep
 from mininet.node import CPULimitedHost, OVSController
@@ -13,6 +12,12 @@ from subprocess import call, Popen
 from monitor import monitor_qlen
 import numpy
 import sys
+
+import matplotlib
+import numpy as np
+import matplotlib.pyplot as plt
+
+import windowgraph
 
 class BBTopo(Topo):
     "Simple topology for bufferbloat experiment."
@@ -47,7 +52,7 @@ def start_iperf(net, congestion_window):
     
     # TODO: Start the iperf client on h1.  Ensure that you create a
     # long lived TCP flow.
-    client = h1.popen("iperf -c -w %s -t %d" % (h2.IP(),  400))
+    client = h1.popen("iperf -c %s -t %d" % (h2.IP(),  400))
 
 def start_ping(net):
     h1 = net.getNodeByName('h1')
@@ -70,12 +75,10 @@ def start_tcpprobe(outfile="cwnd.txt"):
 def stop_tcpprobe():
     Popen("killall -9 cat", shell=True).wait()
 
-
 def start_qmon(iface, interval_sec=0.1, outfile="q.txt"):
     monitor = Process(target=monitor_qlen,args=(iface, interval_sec, outfile))
     monitor.start()
     return monitor
-
 
 def start_webserver(net):
     h1 = net.getNodeByName('h1')
@@ -176,3 +179,7 @@ if __name__ == "__main__":
     congestion_window = sys.argv[2]
     ping_RTT = sys.argv[3]
     bufferbloat(queue_size=queue_size,congestion_window=congestion_window, ping_RTT=ping_RTT)
+    windowgraph.plot_congestion_window("cwnd.txt")
+    windowgraph.plot_queue_length("q.txt")
+    windowgraph.plot_ping_rtt("pingoutput.txt")
+

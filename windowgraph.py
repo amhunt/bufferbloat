@@ -1,7 +1,11 @@
-%matplotlib inline
+#%matplotlib inline
 
 from helper import *
 from collections import defaultdict
+
+import plot_defaults
+from matplotlib.ticker import MaxNLocator
+from pylab import figure
 
 IPERF_PORT = '5001'
 
@@ -32,7 +36,6 @@ def parse_file(f):
         cwnd[sport].append(c * 1480 / 1024.0)
         srtt.append(int(fields[-1]))
     return times, cwnd
-
 
 def plot_cwnds(ax, f, events):
     times, cwnds = parse_file(f)
@@ -88,3 +91,63 @@ def plot_congestion_window(filename, histogram=False):
         axHist.set_title("Histogram of sum(cwnd_i)")
 
     plt.show()
+
+def plot_queue_length(f):
+    to_plot=[]
+    m.rc('figure', figsize=(16, 6))
+    fig = figure()
+    ax = fig.add_subplot(111)
+    
+    data = read_list(f)
+    xaxis = map(float, col(0, data))
+    start_time = xaxis[0]
+    xaxis = map(lambda x: x - start_time, xaxis)
+    qlens = map(float, col(1, data))
+
+    xaxis = xaxis[::1]
+    qlens = qlens[::1]
+    ax.plot(xaxis, qlens, lw=2, color = 'red')
+    ax.xaxis.set_major_locator(MaxNLocator(4))
+
+    plt.ylabel("Packets")
+    plt.grid(True)
+    plt.xlabel("Seconds")
+
+    plt.show()
+
+def parse_ping(fname):
+    ret = []
+    lines = open(fname).readlines()
+    num = 0
+    for line in lines:
+        if 'bytes from' not in line:
+            continue
+        try:
+            rtt = line.split(' ')[-2]
+            rtt = rtt.split('=')[1]
+            rtt = float(rtt)
+            ret.append([num, rtt])
+            num += 1
+        except:
+            break
+    return ret
+
+def plot_ping_rtt(f, freq=10):
+    m.rc('figure', figsize=(16, 6))
+    fig = figure()
+    ax = fig.add_subplot(111)
+    
+    data = parse_ping(f)
+    xaxis = map(float, col(0, data))
+    start_time = xaxis[0]
+    xaxis = map(lambda x: (x - start_time) / freq, xaxis)
+    qlens = map(float, col(1, data))
+
+    ax.plot(xaxis, qlens, lw=2)
+    ax.xaxis.set_major_locator(MaxNLocator(4))
+
+    plt.ylabel("RTT (ms)")
+    plt.grid(True)
+
+    plt.show()
+
