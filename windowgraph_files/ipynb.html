@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<!-- saved from url=(0632)https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&nwo=PrincetonUniversity%2FCOS461-Spring2016&path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&repository_id=50845752#49637714-5f25-4d3e-aea0-75552b0c8970 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Render</title>
+  <meta name="referrer" content="never">
+    <script async="" src="./analytics.js"></script><script src="./ipynb-97914175e769b1573ca2b9a5bb3cb512.js"></script><link rel="stylesheet" href="./ipynb-256efc12625a97f17d4928f6f30f09f7.css">
+  <script src="./MathJax.js" type="application/javascript"></script>
+
+<style type="text/css"></style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style></head>
+<body class="" data-render-url="https://render.githubusercontent.com" data-github-hostname="github.com"><div id="MathJax_Message" style="display: none;"></div>
+  <div class="render-shell js-render-shell" data-document-nwo="PrincetonUniversity/COS461-Spring2016" data-document-commit="19805708e4a8a880728e3e16856cce12d9cd61d7" data-document-path="notebook/assignment2/Bufferbloat/Assignment2-Bufferbloat.ipynb" data-file="https://github-render.s3.amazonaws.com/prod/24c5c0dbc57d01809e4da1fc9dc4822c-render.html?AWSAccessKeyId=AKIAJ4AOLTS5NMHKD5SQ&amp;Signature=7PmxX%2Bt0FZVYN9SjkqWWjEjjRAU%3D&amp;Expires=1459277351" data-meta="https://github-render.s3.amazonaws.com/prod/24c5c0dbc57d01809e4da1fc9dc4822c-meta.json?AWSAccessKeyId=AKIAJ4AOLTS5NMHKD5SQ&amp;Signature=B0sU7qdnnCUokNy7/oB9ddPyr/k%3D&amp;Expires=1459277351">
+    
+
+<div class="render-info">
+  <div class="js-viewer-health render-health is-viewer-good">
+    <span class="symbol">⊖</span>
+    <span class="js-message message">Everything running smoothly!</span>
+  </div>
+</div>
+
+<div id="notebook" class="js-html">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1>Assignment 2 - Bufferbloat<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Assignment-2---Bufferbloat">¶</a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Overview<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Overview">¶</a>
+</h2>
+<p>In this assignment, you will study the dynamics of TCP, and more specifically <strong>bufferbloat</strong>, a problem caused by large buffers leading to poor network performance. You will use a tool called Mininet to emulate a simple network, and configure it such that it can produce the bufferbloat problem. You will collect various statistics from the network with and without bufferbloat, and use your measurement data to reason about the differences. This assignment gives you a chance to experiment with the dynamic of TCP and learn about bufferbloat. You will also learn how to use Mininet, which is a very useful simulation tool for network experiments.</p>
+<h2>Introduction<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Introduction">¶</a>
+</h2>
+<h3>BufferBloat<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#BufferBloat">¶</a>
+</h3>
+<p>Bufferbloat is a phenomenon that happens when a switching devices is configured to use excessively large buffers, which can in turn cause high latency and packet delay variation (jitter). This can happen in a typical home network like the following:
+<img width="600" src="./home-network.png">
+Here, the end host in the Home network is connected to the home router. The home router is then connected, via cable or DSL, to a headend router at the access Internet provider's office. By simulating and experimenting with this part of the home network in Mininet, you will learn how long router buffers can lead to poor network performance.</p>
+<h3>Mininet<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Mininet">¶</a>
+</h3>
+<p>Mininet is a network emulator with which you can create a custom network of virtual hosts, switches, controllers, and links, all on a single linux machine. The virtual devices in the emulated network can run real programs; anything that can run on linux can run on a Mininet device too. This makes Mininet a valuable tool for fast and easy simulation of network protcols and measurements. The <a href="https://render.githubusercontent.com/view/www.mininet.org">Mininet website</a> has a lot of useful resource on how to get started with Mininet.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Part1: Measurement<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Part1:-Measurement">¶</a>
+</h2>
+<p>To start, you should first create the following network using Mininet's Python API, which emulates a typical home netowrk:
+<img width="450" src="./mininet-topo.png">
+Here h1 is your home computer that has a fast connection (1Gb/s) to your home router. The home router has a slow uplink connection (1.5Mb/s). The round-trip propagation delay, or the minimum RTT between h1 and h2 is 20ms.  The router buffer size can hold 100 full sized ethernet frames (about 150KB with an MTU of 1500 bytes).</p>
+<p>To create a custom topology in Mininet, we extend the mininet.topo.Topo class. We have already added the switch (the router) to topology for you. You need to add h1 and h2, and also the links with appropriate characteristic to create the setting specified in the image above (Note that you may need to change the constructor to pass special parameters to the topology):</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">mininet.topo</span> <span class="kn">import</span> <span class="n">Topo</span>
+
+<span class="k">class</span> <span class="nc">BBTopo</span><span class="p">(</span><span class="n">Topo</span><span class="p">):</span>
+    <span class="s">"Simple topology for bufferbloat experiment."</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BBTopo</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="c"># Here we have created a switch.  If you change its name, its</span>
+        <span class="c"># interface names will change from s0-eth1 to newname-eth1.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addSwitch</span><span class="p">(</span><span class="s">'s0'</span><span class="p">)</span>
+        
+        <span class="c"># TODO: create two hosts</span>
+        
+        <span class="c"># TODO: Add links with appropriate characteristics</span>
+        
+        <span class="k">return</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next, we need a couple of helper functions to generate traffic between the two hosts. The following function starts a long-lived TCP flow which sends data from h1 to h2 using <strong>iperf</strong>. It receives one argument called <em>net</em>, which is an instance of mininet with a BBTopo topology that we have created above. We have written the part for the server (h2). Complete the function to also start iperf on the client (h1):</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="k">def</span> <span class="nf">start_iperf</span><span class="p">(</span><span class="n">net</span><span class="p">):</span>
+    <span class="n">h2</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">getNodeByName</span><span class="p">(</span><span class="s">'h2'</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">"Starting iperf server..."</span>
+    <span class="c"># For those who are curious about the -w 16m parameter, it ensures</span>
+    <span class="c"># that the TCP flow is not receiver window limited.  If it is,</span>
+    <span class="c"># there is a chance that the router buffer may not get filled up.</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">h2</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s">"iperf -s -w 16m"</span><span class="p">)</span>
+    
+    <span class="c"># TODO: Start the iperf client on h1.  Ensure that you create a</span>
+    <span class="c"># long lived TCP flow.</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next, we want to start a back-to-back ping train from h1 to h2 10 times a second and record the RTTs. Complete the following function to start the pings (<em>net</em> is an instance of mininet with a BBTopo topology):</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="k">def</span> <span class="nf">start_ping</span><span class="p">(</span><span class="n">net</span><span class="p">):</span>
+    <span class="c"># TODO: Start a ping train from h1 to h2 (or h2 to h1, does it</span>
+    <span class="c"># matter?)  Measure RTTs every 0.1 second.  Read the ping man page</span>
+    <span class="c"># to see how to do this.</span>
+
+    <span class="c"># Hint: Use host.popen(cmd, shell=True).  If you pass shell=True</span>
+    <span class="c"># to popen, you can redirect cmd's output using shell syntax.</span>
+    <span class="c"># i.e. ping ... &gt; /path/to/ping.</span>
+    <span class="k">pass</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next, we develop some helper functions to probe the congestion window of the TCP traffic. This way, we can look at the dynamic of a TCP connection. The functions are already complete, but feel free to experiment with them:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="k">def</span> <span class="nf">start_tcpprobe</span><span class="p">(</span><span class="n">outfile</span><span class="o">=</span><span class="s">"cwnd.txt"</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">"rmmod tcp_probe; modprobe tcp_probe full=1;"</span><span class="p">)</span>
+    <span class="n">Popen</span><span class="p">(</span><span class="s">"cat /proc/net/tcpprobe &gt; </span><span class="si">%s</span><span class="s">"</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">,</span>
+          <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">stop_tcpprobe</span><span class="p">():</span>
+    <span class="n">Popen</span><span class="p">(</span><span class="s">"killall -9 cat"</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Following is a helper function that monitors the queue length on a given interface and interval:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">monitor</span> <span class="kn">import</span> <span class="n">monitor_qlen</span>
+
+<span class="k">def</span> <span class="nf">start_qmon</span><span class="p">(</span><span class="n">iface</span><span class="p">,</span> <span class="n">interval_sec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="s">"q.txt"</span><span class="p">):</span>
+    <span class="n">monitor</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">monitor_qlen</span><span class="p">,</span>
+                      <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">iface</span><span class="p">,</span> <span class="n">interval_sec</span><span class="p">,</span> <span class="n">outfile</span><span class="p">))</span>
+    <span class="n">monitor</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">monitor</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Finally, here is a helper function that starts a webserver on h1 (you will see shortly why we need the webserver):</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+
+<span class="k">def</span> <span class="nf">start_webserver</span><span class="p">(</span><span class="n">net</span><span class="p">):</span>
+    <span class="n">h1</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">getNodeByName</span><span class="p">(</span><span class="s">'h1'</span><span class="p">)</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">h1</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s">"python http/webserver.py"</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">proc</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, we need to put together all the pieces to create the network, start all the traffic, and make the measurements. More specifically, the <em>bufferbloat</em> function should:</p>
+<ul>
+<li>create a <em>BBTopo</em>
+</li>
+<li>start the TCP and queue monitors</li>
+<li>start a long-lived TCP flow using iperf</li>
+<li>start the ping train</li>
+<li>start the webserver</li>
+<li>Periodically download the index.html web page from h1 and measure how long it takes to fetch it </li>
+</ul>
+<p>Note that the long lived flow, ping train, and webserver downloads should all be happening simultaneously. Once you have completed the assignment steps up until here, complete the <em>bufferbloat</em> function below to do all the steps described above. We highly recommand that you parametrize your code in terms of the queue length, link delay, experiment time, output directories and files, etc so that you can experiment with differnet parameters easily. You can use the <em>**kwargs</em> to pass in any parameter you need to the <em>bufferbloat</em> function:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">mininet.node</span> <span class="kn">import</span> <span class="n">CPULimitedHost</span><span class="p">,</span> <span class="n">OVSController</span>
+<span class="kn">from</span> <span class="nn">mininet.link</span> <span class="kn">import</span> <span class="n">TCLink</span>
+<span class="kn">from</span> <span class="nn">mininet.net</span> <span class="kn">import</span> <span class="n">Mininet</span>
+<span class="kn">from</span> <span class="nn">mininet.log</span> <span class="kn">import</span> <span class="n">lg</span><span class="p">,</span> <span class="n">info</span>
+<span class="kn">from</span> <span class="nn">mininet.util</span> <span class="kn">import</span> <span class="n">dumpNodeConnections</span>
+
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">call</span>
+
+<span class="k">def</span> <span class="nf">bufferbloat</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c"># Linux uses CUBIC-TCP by default that doesn't have the usual sawtooth</span>
+    <span class="c"># behaviour.  For those who are curious, replace reno with cubic</span>
+    <span class="c"># see what happens...</span>
+    <span class="c"># sysctl -a | grep cong should list some interesting parameters.</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">"sysctl -w net.ipv4.tcp_congestion_control=reno"</span><span class="p">)</span>
+    
+    <span class="c"># create the topology and network</span>
+    <span class="n">topo</span> <span class="o">=</span> <span class="n">BBTopo</span><span class="p">()</span>
+    <span class="n">net</span> <span class="o">=</span> <span class="n">Mininet</span><span class="p">(</span><span class="n">topo</span><span class="o">=</span><span class="n">topo</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">CPULimitedHost</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">TCLink</span><span class="p">,</span> 
+                  <span class="n">controller</span><span class="o">=</span> <span class="n">OVSController</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="c"># This dumps the topology and how nodes are interconnected through</span>
+    <span class="c"># links.</span>
+    <span class="n">dumpNodeConnections</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">hosts</span><span class="p">)</span>
+    
+    <span class="c"># This performs a basic all pairs ping test.</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">pingAll</span><span class="p">()</span>
+    
+    <span class="c"># Start all the monitoring processes</span>
+    <span class="n">start_tcpprobe</span><span class="p">(</span><span class="s">"cwnd.txt"</span><span class="p">)</span>
+
+    <span class="c"># TODO: Start monitoring the queue sizes.  Since the switch I</span>
+    <span class="c"># created is "s0", I monitor one of the interfaces.  Which</span>
+    <span class="c"># interface?  The interface numbering starts with 1 and increases.</span>
+    <span class="c"># Depending on the order you add links to your network, this</span>
+    <span class="c"># number may be 1 or 2.  Ensure you use the correct number.</span>
+    <span class="c"># qmon = start_qmon(...)</span>
+
+    <span class="c"># TODO: Start iperf, pings, and the webserver.</span>
+    <span class="c"># start_iperf(net), ...</span>
+
+    <span class="c"># TODO: measure the time it takes to complete webpage transfer</span>
+    <span class="c"># from h1 to h2 (say) 4-5 times.  Hint: check what the following</span>
+    <span class="c"># command does: curl -o /dev/null -s -w %{time_total} google.com</span>
+    <span class="c"># Now use the curl command to fetch webpage from the webserver you</span>
+    <span class="c"># spawned on host h1 (not from google!)</span>
+
+    <span class="c"># Hint: have a separate function to do this and you may find the</span>
+    <span class="c"># loop below useful.</span>
+    <span class="n">exp_time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">'experiment_time'</span><span class="p">]</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="c"># do the measurement (say) 3 times.</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="n">exp_time</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">print</span> <span class="s">"</span><span class="si">%.1f</span><span class="s">s left..."</span> <span class="o">%</span> <span class="p">(</span><span class="n">exp_time</span> <span class="o">-</span> <span class="n">delta</span><span class="p">)</span>
+
+    <span class="c"># TODO: compute average (and standard deviation) of the fetch</span>
+    <span class="c"># times.  You don't need to plot them.  Just print them</span>
+    <span class="c"># here and explain your observations in the Questions part</span>
+    <span class="c"># in Part 2, where you analyze your measurements.</span>
+
+    <span class="c"># Stop probing </span>
+    <span class="n">stop_tcpprobe</span><span class="p">()</span>
+    <span class="n">qmon</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    
+    <span class="c"># TODO: Ensure that all processes you create within Mininet are killed.</span>
+    <span class="c"># Sometimes they require manual killing.</span>
+    <span class="n">Popen</span><span class="p">(</span><span class="s">"pgrep -f webserver.py | xargs kill -9"</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once you have completed all the steps above, use your <em>bufferbloat</em> function to run the experiment, once with queue size of a 100 packets and then queue size of 20 packets. Make sure to run the experiments long enough (on the order of a few minutes) to see the dynamics of TCP, like the sawtooth behavior, in your results.</p>
+<p><strong>When testing and experimenting with your code, make sure to kill all the process you are creating within mininet manually if your code ran into exceptions and did not do the clean up for you. Moreover, if mininet was not exited normally, make sure to do the clean up for mininet too.</strong> This can be done using "mn -c" executed as root.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># TODO: run the experiments once with queue size of 100 packets, and once with 20.</span>
+<span class="n">call</span><span class="p">([</span><span class="s">"mn"</span><span class="p">,</span> <span class="s">"-c"</span><span class="p">])</span>
+<span class="c"># bufferbloat(appropriate arguments)</span>
+<span class="c"># bufferbloat(appropriate arguments)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Part2: Analysis<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Part2:-Analysis">¶</a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this part of the assignment, you should first analyze your measurements with different queue sizes by plotting the variations in congestion window, queue length, and ping RTT versus time. Then, you should try to answer some questions about TCP and bufferbloat using your observations and the plots.</p>
+<h3>Congestion Window<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Congestion-Window">¶</a>
+</h3>
+<p>The following script contains functions for plotting the congestion window measurements. The <em>plot_congestion_window</em> takes in the file containing the outputs of tcpprobe from your experiment and makes a plot.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="kn">from</span> <span class="nn">helper</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="n">IPERF_PORT</span> <span class="o">=</span> <span class="s">'5001'</span>
+
+<span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lst</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">second</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lst</span><span class="p">)</span>
+
+<span class="sd">"""</span>
+<span class="sd">Sample line:</span>
+<span class="sd">2.221032535 10.0.0.2:39815 10.0.0.1:5001 32 0x1a2a710c 0x1a2a387c 11 2147483647 14592 85</span>
+<span class="sd">"""</span>
+<span class="k">def</span> <span class="nf">parse_file</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">cwnd</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">srtt</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">xreadlines</span><span class="p">():</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">11</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">':'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">IPERF_PORT</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">sport</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">':'</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">times</span><span class="p">[</span><span class="n">sport</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+        <span class="n">cwnd</span><span class="p">[</span><span class="n">sport</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">1480</span> <span class="o">/</span> <span class="mf">1024.0</span><span class="p">)</span>
+        <span class="n">srtt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">times</span><span class="p">,</span> <span class="n">cwnd</span>
+
+
+<span class="k">def</span> <span class="nf">plot_cwnds</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="n">times</span><span class="p">,</span> <span class="n">cwnds</span> <span class="o">=</span> <span class="n">parse_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cwnds</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">port</span><span class="p">]</span>
+        <span class="n">cwnd</span> <span class="o">=</span> <span class="n">cwnds</span><span class="p">[</span><span class="n">port</span><span class="p">]</span>
+
+        <span class="n">events</span> <span class="o">+=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="p">[</span><span class="n">port</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">cwnd</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">cwnd</span><span class="p">)</span>
+
+    <span class="n">events</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">plot_congestion_window</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">histogram</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>    
+    <span class="n">added</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">total_cwnd</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">cwnd_time</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">min_total_cwnd</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">10</span>
+    <span class="n">max_total_cwnd</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">totalcwnds</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">m</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s">'figure'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plots</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">histogram</span><span class="p">:</span>
+        <span class="n">plots</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">axPlot</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">plots</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plot_cwnds</span><span class="p">(</span><span class="n">axPlot</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">events</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">added</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
+            <span class="n">total_cwnd</span> <span class="o">-=</span> <span class="n">added</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+        <span class="n">total_cwnd</span> <span class="o">+=</span> <span class="n">c</span>
+        <span class="n">cwnd_time</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">t</span><span class="p">,</span> <span class="n">total_cwnd</span><span class="p">))</span>
+        <span class="n">added</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="n">totalcwnds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_cwnd</span><span class="p">)</span>
+
+    <span class="n">axPlot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">first</span><span class="p">(</span><span class="n">cwnd_time</span><span class="p">),</span> <span class="n">second</span><span class="p">(</span><span class="n">cwnd_time</span><span class="p">),</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"$\sum_i W_i$"</span><span class="p">)</span>
+    <span class="n">axPlot</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c">#axPlot.legend()</span>
+    <span class="n">axPlot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">"seconds"</span><span class="p">)</span>
+    <span class="n">axPlot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">"cwnd KB"</span><span class="p">)</span>
+    <span class="n">axPlot</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">"TCP congestion window (cwnd) timeseries"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">histogram</span><span class="p">:</span>
+        <span class="n">axHist</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">axHist</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">totalcwnds</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s">'green'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+
+        <span class="n">axHist</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">"bins (KB)"</span><span class="p">)</span>
+        <span class="n">axHist</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">"Fraction"</span><span class="p">)</span>
+        <span class="n">axHist</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">"Histogram of sum(cwnd_i)"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the above function to create the congestion window plot for queue size of 100 packets:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># TODO: call the plot function with the correct file name</span>
+<span class="c">#plot_congestion_window(cwnd_file_path)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the above function to create the congestion window plot for queue size of 20 packets:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># TODO: call the plot function with the correct file name</span>
+<span class="c"># plot_congestion_window(cwnd_file_path)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3>Queue Length<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Queue-Length">¶</a>
+</h3>
+<p>The following script contains functions for plotting the queue length measurements. The <em>plot_queue_length</em> takes in the file containing the outputs of queue monitoring from your experiment and makes a plot.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="kn">import</span> <span class="nn">plot_defaults</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MaxNLocator</span>
+<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">figure</span>
+
+<span class="k">def</span> <span class="nf">plot_queue_length</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="n">to_plot</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s">'figure'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="n">read_list</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">xaxis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">col</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">xaxis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">xaxis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">xaxis</span><span class="p">)</span>
+    <span class="n">qlens</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">col</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+
+    <span class="n">xaxis</span> <span class="o">=</span> <span class="n">xaxis</span><span class="p">[::</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">qlens</span> <span class="o">=</span> <span class="n">qlens</span><span class="p">[::</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xaxis</span><span class="p">,</span> <span class="n">qlens</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">'red'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Packets"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Seconds"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the above function to create the queue length plot for queue size of 100 packets:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># TODO: call the plot function with the correct file name</span>
+<span class="c"># plot_queue_length(qlen_file_path)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the above function to create the queue length plot for queue size of 20 packets:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># TODO: call the plot function with the correct file name</span>
+<span class="c"># plot_queue_length(qlen_file_path)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3>Ping RTT<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Ping-RTT">¶</a>
+</h3>
+<p>The following script contains functions for plotting the ping RTT measurements. The <em>plot_ping_rtt</em> takes in the file containing the outputs of the pings from your experiment, as well as the number of pings you initiated per second, and makes a plot.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="k">def</span> <span class="nf">parse_ping</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">'bytes from'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rtt</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">rtt</span> <span class="o">=</span> <span class="n">rtt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'='</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">rtt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rtt</span><span class="p">)</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">num</span><span class="p">,</span> <span class="n">rtt</span><span class="p">])</span>
+            <span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+<span class="k">def</span> <span class="nf">plot_ping_rtt</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s">'figure'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="n">parse_ping</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">xaxis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">col</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">xaxis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">xaxis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">/</span> <span class="n">freq</span><span class="p">,</span> <span class="n">xaxis</span><span class="p">)</span>
+    <span class="n">qlens</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">col</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xaxis</span><span class="p">,</span> <span class="n">qlens</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"RTT (ms)"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the above function to create the ping RTT plot for queue size of 100 packets:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># TODO: call the plot function with the correct file name</span>
+<span class="c"># plot_ping_rtt(pings_file_path)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the above function to create the ping RTT plot for queue size of 20 packets:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># TODO: call the plot function with the correct file name</span>
+<span class="c"># plot_ping_rtt(qlen_file_path)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3>Questions<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Questions">¶</a>
+</h3>
+<p>Answer the following questions based on your observations (plots and measurement statistics) from the experiments:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Why do you see a difference in webpage fetch times with short and large router buffers?</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Answer:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Bufferbloat can occur in other places such as your network interface card (NIC).  Check the output of <em>ifconfig eth0</em> on the VM.  What is the (maximum) transmit queue length on the network interface reported by ifconfig?  For this queue size, if you assume the queue drains at 100Mb/s, what is the maximum time a packet might wait in the queue before it leaves the NIC?</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="o">!</span> ifconfig eth0
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Answer:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>How does the RTT reported by ping vary with the queue size?  Write a symbolic equation to describe the relation between the two (ignore computation overheads in ping that might affect the final result).</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Answer:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Identify and describe two ways to mitigate the bufferbloat problem.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Answer:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Acknowledgement<a class="anchor-link" href="https://render.githubusercontent.com/view/ipynb?commit=19805708e4a8a880728e3e16856cce12d9cd61d7&amp;enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f5072696e6365746f6e556e69766572736974792f434f533436312d537072696e67323031362f313938303537303865346138613838303732386533653136383536636365313264396364363164372f6e6f7465626f6f6b2f61737369676e6d656e74322f427566666572626c6f61742f41737369676e6d656e74322d427566666572626c6f61742e6970796e62&amp;nwo=PrincetonUniversity%2FCOS461-Spring2016&amp;path=notebook%2Fassignment2%2FBufferbloat%2FAssignment2-Bufferbloat.ipynb&amp;repository_id=50845752#Acknowledgement">¶</a>
+</h2>
+<p>This assignment is modeled after a <a href="http://web.stanford.edu/class/cs244/pa1.html">similar assignment</a> in Stanford university.</p>
+
+</div>
+</div>
+</div></div>
+
+  </div>
+
+  
+
+
+
+</body></html>
